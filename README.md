@@ -8,7 +8,6 @@ No more confusing legal language. Just clear, simple help.
 
 - **AI Legal Assistant** - Ask any legal question in simple Hindi / English
 - **Find Nearby Lawyers** - Search lawyers by city and case type
-- **Legal Document Templates** - Rent agreement, affidavit, complaint letter & more
 - **Emergency Legal Help** - What to do if arrested, FIR process, women safety laws
 - **Know Your Rights** - Fundamental rights explained in easy language
 
