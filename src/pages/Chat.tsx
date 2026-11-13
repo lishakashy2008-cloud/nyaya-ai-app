@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Scale, RotateCcw } from 'lucide-react';
 import type { ChatMessage } from '@/types';
-import { fetchAiReply } from '@/lib/ai';
 import { getLegalAnswer } from '@/data/legalKnowledge';
 import { loadChatHistory, saveChatHistory, clearChatHistory } from '@/lib/storage';
 import { useApp } from '@/context/AppContext';
@@ -39,13 +38,7 @@ export default function Chat() {
     setTyping(true);
 
     (async () => {
-      let reply: string;
-      try {
-        const history = [...messages, userMsg];
-        reply = await fetchAiReply(trimmed, history);
-      } catch {
-        reply = getLegalAnswer(trimmed);
-      }
+      const reply = getLegalAnswer(trimmed);
       const botMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'bot',

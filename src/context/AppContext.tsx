@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import type { Lang, StringKey } from '@/lib/i18n';
-import { tr } from '@/lib/i18n';
+import { DEFAULT_LANG, isLang, langMeta, type Lang } from '@/lib/languages';
+import { resolveList, resolveString, resolveTopic } from '@/lib/resolve';
+import type { StringKey } from '@/locales/en';
+import type { TopicContent, TopicId } from '@/types';
 import { loadProfile, saveProfile, clearProfile, type UserProfile } from '@/lib/storage';
 import type { Page } from '@/types';
 
@@ -8,6 +10,9 @@ interface AppCtx {
   lang: Lang;
   setLang: (l: Lang) => void;
   t: (k: StringKey) => string;
+  topic: (id: TopicId) => TopicContent;
+  chips: string[];
+  suggestions: string[];
   dark: boolean;
   toggleDark: () => void;
   bookmarks: string[];
@@ -35,7 +40,10 @@ function readPref<T>(key: string, fallback: T): T {
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>(() => readPref<Lang>('nyaya_lang', 'hi'));
+  const [lang, setLangState] = useState<Lang>(() => {
+    const saved = readPref<string>('nyaya_lang', DEFAULT_LANG);
+    return isLang(saved) ? saved : DEFAULT_LANG;
+  });
   const [dark, setDark] = useState<boolean>(() => readPref<boolean>('nyaya_dark', false));
   const [bookmarks, setBookmarks] = useState<string[]>(() => readPref<string[]>('nyaya_bookmarks', []));
   const [page, setPage] = useState<Page>('home');
@@ -46,6 +54,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
   }, [dark]);
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = langMeta(lang).rtl ? 'rtl' : 'ltr';
+  }, [lang]);
 
   const setLang = (l: Lang) => {
     setLangState(l);
@@ -110,12 +123,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setDetailId(null);
   };
 
+  const list = resolveList(lang);
+
   return (
     <Ctx.Provider
       value={{
         lang,
         setLang,
-        t: (k) => tr(k, lang),
+        t: (k) => resolveString(lang, k),
+        topic: (id) => resolveTopic(lang, id),
+        chips: list.quickChips,
+        suggestions: list.suggestions,
         dark,
         toggleDark,
         bookmarks,

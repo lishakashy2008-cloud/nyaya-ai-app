@@ -1,5 +1,8 @@
-import { Scale, Home, MessageCircle, BookOpen, Siren, Sun, Moon, Languages, LogOut } from 'lucide-react';
+import { useState } from 'react';
+import { Scale, Home, MessageCircle, BookOpen, Siren, Sun, Moon, LogOut } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
+import { LanguageChip } from '@/components/LanguagePicker';
+import LanguagePicker from '@/components/LanguagePicker';
 import type { Page } from '@/types';
 
 export function TabBar() {
@@ -53,28 +56,20 @@ export function TabBar() {
 }
 
 export function AppHeader() {
-  const { dark, toggleDark, lang, setLang, t, logout } = useApp();
+  const { dark, toggleDark, t, logout } = useApp();
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-30 bg-white/80 dark:bg-[#1D1934]/85 backdrop-blur-xl border-b border-nyaya-100 dark:border-white/10">
-      <div className="max-w-md mx-auto flex items-center gap-2.5 px-5 py-3">
+      <div className="max-w-md mx-auto flex items-center gap-2 px-5 py-3">
         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-nyaya-400 to-nyaya-600 flex items-center justify-center shadow-soft shrink-0">
           <Scale size={18} className="text-white" strokeWidth={2.2} />
         </div>
         <div className="flex-1 leading-tight min-w-0">
           <h1 className="font-display font-bold text-[15px] text-gray-900 dark:text-white">Nyaya AI</h1>
-          <p className="text-[10px] text-nyaya-600 dark:text-nyaya-300 font-medium truncate">
-            {lang === 'en' ? 'Your Rights, Your Voice' : 'आपके अधिकार, आपकी आवाज़'}
-          </p>
+          <p className="text-[10px] text-nyaya-600 dark:text-nyaya-300 font-medium truncate">{t('tagline')}</p>
         </div>
-        <button
-          onClick={() => setLang(lang === 'en' ? 'hi' : 'en')}
-          aria-label="Switch language"
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-nyaya-100 dark:bg-white/10 text-nyaya-700 dark:text-nyaya-200 text-[11px] font-bold active:scale-90 transition-transform"
-        >
-          <Languages size={14} />
-          {lang === 'en' ? 'हिं' : 'EN'}
-        </button>
+        <LanguageChip onClick={() => setPickerOpen(true)} />
         <button
           onClick={toggleDark}
           aria-label={dark ? 'Light mode' : 'Dark mode'}
@@ -90,6 +85,7 @@ export function AppHeader() {
           <LogOut size={15} />
         </button>
       </div>
+      {pickerOpen && <LanguagePicker onClose={() => setPickerOpen(false)} />}
     </header>
   );
 }
