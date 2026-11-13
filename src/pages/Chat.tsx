@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Scale, RotateCcw } from 'lucide-react';
 import type { ChatMessage } from '@/types';
+import { fetchAiReply } from '@/lib/ai';
 import { getLegalAnswer } from '@/data/legalKnowledge';
 import { loadChatHistory, saveChatHistory, clearChatHistory } from '@/lib/storage';
 import { useApp } from '@/context/AppContext';
@@ -36,17 +37,24 @@ export default function Chat() {
     setMessages((m) => [...m, userMsg]);
     setInput('');
     setTyping(true);
-    const delay = 700 + Math.random() * 700;
-    setTimeout(() => {
+
+    (async () => {
+      let reply: string;
+      try {
+        const history = [...messages, userMsg];
+        reply = await fetchAiReply(trimmed, history);
+      } catch {
+        reply = getLegalAnswer(trimmed);
+      }
       const botMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'bot',
-        text: getLegalAnswer(trimmed),
+        text: reply,
         time: now(),
       };
       setMessages((m) => [...m, botMsg]);
       setTyping(false);
-    }, delay);
+    })();
   };
 
   useEffect(() => {
@@ -55,7 +63,7 @@ export default function Chat() {
       send(seedQuestion);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seedQuestion]);
+  }, [seedQuestion, messages]);
 
   const reset = () => {
     clearChatHistory();

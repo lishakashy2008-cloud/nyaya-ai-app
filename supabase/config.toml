@@ -1,0 +1,5 @@
+# Learn: https://supabase.com/docs/guides/cli/config
+project_id = "nyaya-ai"
+
+[functions.ai-chat]
+verify_jwt = false
